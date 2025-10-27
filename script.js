@@ -15,19 +15,19 @@ class Aluno {
   }
 }
 
-// --------------------- Lógica principal ---------------------
+// --------------------- Variáveis principais ---------------------
 let alunos = [];
 let editIndex = null;
 
 const form = document.getElementById("formAluno");
 const tabela = document.getElementById("tabelaAlunos");
+const relatoriosDiv = document.getElementById("relatorios");
 
 const renderTabela = () => {
   tabela.innerHTML = "";
 
   alunos.forEach((aluno, index) => {
     const tr = document.createElement("tr");
-
     tr.innerHTML = `
       <td>${aluno.nome}</td>
       <td>${aluno.idade}</td>
@@ -39,10 +39,10 @@ const renderTabela = () => {
         <button class="btnExcluir" data-index="${index}">Excluir</button>
       </td>
     `;
-
     tabela.appendChild(tr);
   });
 
+  // Eventos dinâmicos dos botões
   document.querySelectorAll(".btnEditar").forEach(btn => {
     btn.addEventListener("click", function() {
       const index = this.getAttribute("data-index");
@@ -58,6 +58,7 @@ const renderTabela = () => {
   });
 };
 
+// Evento de cadastro
 form.addEventListener("submit", (e) => {
   e.preventDefault();
 
@@ -70,19 +71,18 @@ form.addEventListener("submit", (e) => {
 
   if (editIndex === null) {
     alunos.push(aluno);
-    alert("✅ Aluno cadastrado com sucesso!");
+    alert("Aluno cadastrado com sucesso!");
   } else {
     alunos[editIndex] = aluno;
-    alert("✏️ Aluno editado com sucesso!");
+    alert("Aluno editado com sucesso!");
     editIndex = null;
   }
 
-  console.log("Lista atualizada:", alunos);
   form.reset();
   renderTabela();
 });
 
-// Função para editar aluno
+// Editar aluno
 const editarAluno = (index) => {
   const aluno = alunos[index];
   document.getElementById("nome").value = aluno.nome;
@@ -90,15 +90,72 @@ const editarAluno = (index) => {
   document.getElementById("curso").value = aluno.curso;
   document.getElementById("notaFinal").value = aluno.notaFinal;
   editIndex = index;
-  console.log(`🖊️ Editando aluno: ${aluno.toString()}`);
 };
 
-// Função para excluir aluno
+// Excluir aluno
 const excluirAluno = (index) => {
   if (confirm("Deseja realmente excluir este aluno?")) {
-    const removido = alunos.splice(index, 1);
-    alert(`🗑️ Aluno ${removido[0].nome} excluído!`);
-    console.log(`Aluno excluído: ${removido[0].toString()}`);
+    alunos.splice(index, 1);
+    alert("Aluno excluído!");
     renderTabela();
   }
 };
+
+// --------------------- Relatórios ---------------------
+
+// Aprovados
+document.getElementById("btnAprovados").addEventListener("click", () => {
+  const aprovados = alunos.filter(a => a.isAprovado());
+  const nomes = aprovados.map(a => a.nome).join(", ") || "Nenhum aluno aprovado.";
+  relatoriosDiv.innerHTML = `<p><strong>Aprovados:</strong> ${nomes}</p>`;
+});
+
+// Média das notas
+document.getElementById("btnMediaNotas").addEventListener("click", () => {
+  if (alunos.length === 0) {
+    relatoriosDiv.innerHTML = "<p>Sem alunos cadastrados.</p>";
+    return;
+  }
+  const media = alunos.reduce((acc, a) => acc + a.notaFinal, 0) / alunos.length;
+  relatoriosDiv.innerHTML = `<p><strong>Média das notas:</strong> ${media.toFixed(2)}</p>`;
+});
+
+// Média das idades
+document.getElementById("btnMediaIdades").addEventListener("click", () => {
+  if (alunos.length === 0) {
+    relatoriosDiv.innerHTML = "<p>Sem alunos cadastrados.</p>";
+    return;
+  }
+  const media = alunos.reduce((acc, a) => acc + a.idade, 0) / alunos.length;
+  relatoriosDiv.innerHTML = `<p><strong>Média das idades:</strong> ${media.toFixed(2)}</p>`;
+});
+
+// Ordem alfabética
+document.getElementById("btnOrdemAlfabetica").addEventListener("click", () => {
+  if (alunos.length === 0) {
+    relatoriosDiv.innerHTML = "<p>Sem alunos cadastrados.</p>";
+    return;
+  }
+  const nomes = alunos.map(a => a.nome).sort().join(", ");
+  relatoriosDiv.innerHTML = `<p><strong>Ordem alfabética:</strong> ${nomes}</p>`;
+});
+
+document.getElementById("btnQtdPorCurso").addEventListener("click", () => {
+  if (alunos.length === 0) {
+    relatoriosDiv.innerHTML = "<p>Sem alunos cadastrados.</p>";
+    return;
+  }
+
+  const qtd = {};
+  alunos.forEach(a => {
+    qtd[a.curso] = (qtd[a.curso] || 0) + 1;
+  });
+
+  let html = "<ul>";
+  for (const [curso, total] of Object.entries(qtd)) {
+    html += `<li>${curso}: ${total} aluno(s)</li>`;
+  }
+  html += "</ul>";
+
+  relatoriosDiv.innerHTML = `<p><strong>Quantidade por curso:</strong></p>${html}`;
+});
