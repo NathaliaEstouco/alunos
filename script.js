@@ -15,18 +15,17 @@ class Aluno {
   }
 }
 
+// --------------------- Lógica principal ---------------------
 let alunos = [];
 let editIndex = null;
 
 const form = document.getElementById("formAluno");
 const tabela = document.getElementById("tabelaAlunos");
 
-// Renderizar tabela
-function renderTabela() {
+const renderTabela = () => {
   tabela.innerHTML = "";
 
-  for (let i = 0; i < alunos.length; i++) {
-    const aluno = alunos[i];
+  alunos.forEach((aluno, index) => {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
@@ -36,17 +35,30 @@ function renderTabela() {
       <td>${aluno.notaFinal}</td>
       <td>${aluno.isAprovado() ? "Aprovado" : "Reprovado"}</td>
       <td>
-        <button onclick="editarAluno(${i})">Editar</button>
-        <button onclick="excluirAluno(${i})">Excluir</button>
+        <button class="btnEditar" data-index="${index}">Editar</button>
+        <button class="btnExcluir" data-index="${index}">Excluir</button>
       </td>
     `;
 
     tabela.appendChild(tr);
-  }
-}
+  });
 
-// Evento de envio do formulário
-form.addEventListener("submit", function(e) {
+  document.querySelectorAll(".btnEditar").forEach(btn => {
+    btn.addEventListener("click", function() {
+      const index = this.getAttribute("data-index");
+      editarAluno(index);
+    });
+  });
+
+  document.querySelectorAll(".btnExcluir").forEach(btn => {
+    btn.addEventListener("click", function() {
+      const index = this.getAttribute("data-index");
+      excluirAluno(index);
+    });
+  });
+};
+
+form.addEventListener("submit", (e) => {
   e.preventDefault();
 
   const nome = document.getElementById("nome").value;
@@ -58,30 +70,35 @@ form.addEventListener("submit", function(e) {
 
   if (editIndex === null) {
     alunos.push(aluno);
-    alert("Aluno cadastrado com sucesso!");
+    alert("✅ Aluno cadastrado com sucesso!");
   } else {
     alunos[editIndex] = aluno;
-    alert("Aluno editado com sucesso!");
+    alert("✏️ Aluno editado com sucesso!");
     editIndex = null;
   }
 
+  console.log("Lista atualizada:", alunos);
   form.reset();
   renderTabela();
 });
 
-function editarAluno(index) {
+// Função para editar aluno
+const editarAluno = (index) => {
   const aluno = alunos[index];
   document.getElementById("nome").value = aluno.nome;
   document.getElementById("idade").value = aluno.idade;
   document.getElementById("curso").value = aluno.curso;
   document.getElementById("notaFinal").value = aluno.notaFinal;
   editIndex = index;
-}
+  console.log(`🖊️ Editando aluno: ${aluno.toString()}`);
+};
 
-function excluirAluno(index) {
+// Função para excluir aluno
+const excluirAluno = (index) => {
   if (confirm("Deseja realmente excluir este aluno?")) {
-    alunos.splice(index, 1);
-    alert("Aluno excluído!");
+    const removido = alunos.splice(index, 1);
+    alert(`🗑️ Aluno ${removido[0].nome} excluído!`);
+    console.log(`Aluno excluído: ${removido[0].toString()}`);
     renderTabela();
   }
-}
+};
