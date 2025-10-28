@@ -101,7 +101,7 @@ const excluirAluno = (index) => {
   }
 };
 
-// --------------------- Relatórios ---------------------
+// Relatórios
 
 // Aprovados
 document.getElementById("btnAprovados").addEventListener("click", () => {
