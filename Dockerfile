@@ -1,10 +1,14 @@
-FROM nginx:alpine
+# Usa o Nginx como servidor web
+FROM nginx:latest
 
-# Copiar todos os arquivos do projeto para o diretório do Nginx
-COPY . /usr/share/nginx/html
+# Define o diretório de trabalho
+WORKDIR /usr/share/nginx/html
 
-# Expor a porta 80
-EXPOSE 80
+# Copia os arquivos do projeto para dentro do container
+COPY . .
 
-# Rodar o Nginx
+# Expõe a porta 8092 (para documentação)
+EXPOSE 8092
+
+# Mantém o Nginx rodando
 CMD ["nginx", "-g", "daemon off;"]
